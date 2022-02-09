@@ -1,6 +1,12 @@
 package main
 
 import (
+	"github.com/Hymiside/auth-microservice/pkg/handler"
+	"github.com/Hymiside/auth-microservice/pkg/server"
+	"log"
+)
+
+import (
 	"github.com/Hymiside/auth-microservice/pkg/database"
 	"github.com/Hymiside/auth-microservice/pkg/handler"
 	"github.com/Hymiside/auth-microservice/pkg/server"
@@ -19,7 +25,9 @@ func main() {
 	handlers := handler.NewHandler(services)
 
 	srv := new(server.Server)
-	if err := srv.RunServer(handlers.InitRoutes()); err != nil {
+	handlers := new(handler.Handler)
+
+	if err := srv.RunServer(handlers.InitHandler()); err != nil {
 		log.Fatalf("Сервер упал при запуске: %s", err.Error())
 	}
 }
