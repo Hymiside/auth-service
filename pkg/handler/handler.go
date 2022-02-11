@@ -10,5 +10,8 @@ type Handler struct {
 
 func (h *Handler) InitHandler() *chi.Mux {
 	h.handler = chi.NewRouter()
+
+	h.handler.Post("/api/auth/signup", signUp)
+
 	return h.handler
 }
