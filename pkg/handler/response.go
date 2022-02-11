@@ -5,10 +5,10 @@ import (
 	"net/http"
 )
 
-func responseStatusOk(w http.ResponseWriter) {
+func responseStatusOk(w http.ResponseWriter, message string) {
 	// Функуия записывает ответ с статус кодом 200 в JSON и возвращает его
 	res := make(map[string]string)
-	res["message"] = "Status ok"
+	res["message"] = message
 	resJSON, _ := json.Marshal(res)
 
 	w.Header().Set("Content-Type", "application/json")
@@ -16,13 +16,13 @@ func responseStatusOk(w http.ResponseWriter) {
 	_, _ = w.Write(resJSON)
 }
 
-func responseBadRequest(w http.ResponseWriter) {
-	// Функуия записывает ответ с статус кодом 400 в JSON и возвращает его
+func responseError(w http.ResponseWriter, message string, code int) {
+	// Функуия записывает ответ с статус кодом 4xx или 5хх в JSON и возвращает его
 	res := make(map[string]string)
-	res["message"] = "Invalid request"
+	res["message"] = message
 	resJSON, _ := json.Marshal(res)
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(400)
+	w.WriteHeader(code)
 	_, _ = w.Write(resJSON)
 }

@@ -12,20 +12,20 @@ func signUp(w http.ResponseWriter, r *http.Request) {
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		responseBadRequest(w)
+		responseError(w, "Invalid request", 400)
 		return
 	}
 	err = json.Unmarshal(body, &m)
 	if err != nil {
-		responseBadRequest(w)
+		responseError(w, "Invalid request", 400)
 		return
 	}
 	if m.Username == nil || m.Name == nil || m.Password == nil {
-		responseBadRequest(w)
+		responseError(w, "Invalid request", 400)
 		return
 	}
 	// TODO
 
-	responseStatusOk(w)
+	responseStatusOk(w, "Status ok")
 	return
 }
