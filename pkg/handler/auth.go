@@ -3,29 +3,30 @@ package handler
 import (
 	"encoding/json"
 	"github.com/Hymiside/auth-microservice/pkg/models"
+	"github.com/Hymiside/auth-microservice/pkg/service"
 	"io/ioutil"
 	"net/http"
 )
 
 func signUp(w http.ResponseWriter, r *http.Request) {
-	m := &models.User{}
+	u := &models.User{}
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		responseError(w, "Invalid request", 400)
+		ResponseError(w, "Invalid request 1", 400)
 		return
 	}
-	err = json.Unmarshal(body, &m)
+	err = json.Unmarshal(body, u)
 	if err != nil {
-		responseError(w, "Invalid request", 400)
+		ResponseError(w, err.Error(), 400)
 		return
 	}
-	if m.Username == nil || m.Name == nil || m.Password == nil {
-		responseError(w, "Invalid request", 400)
-		return
-	}
-	// TODO
 
-	responseStatusOk(w, "Status ok")
+	msg, err := service.CreateNewUser(u)
+	if err != nil {
+		ResponseError(w, msg, 400)
+	}
+
+	ResponseStatusOk(w, msg)
 	return
 }

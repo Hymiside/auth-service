@@ -1,9 +1,15 @@
 package server
 
 import (
+	"fmt"
 	"github.com/go-chi/chi/v5"
 	"log"
 	"net/http"
+)
+
+const (
+	host = "localhost"
+	port = "5000"
 )
 
 type Server struct {
@@ -12,7 +18,7 @@ type Server struct {
 
 func (s *Server) RunServer(handler *chi.Mux) error {
 	s.httpServer = &http.Server{
-		Addr:    ":5000",
+		Addr:    fmt.Sprintf("%s:%s", host, port),
 		Handler: handler,
 	}
 	log.Println("The auth microservice is running on http://localhost:5000/")

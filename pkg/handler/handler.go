@@ -12,6 +12,7 @@ func (h *Handler) InitHandler() *chi.Mux {
 	h.handler = chi.NewRouter()
 
 	h.handler.Post("/api/auth/signup", signUp)
+	// h.handler.Post("/api/auth/signin", signIn)
 
 	return h.handler
 }
