@@ -4,21 +4,14 @@ import (
 	"encoding/json"
 	"github.com/Hymiside/auth-microservice/pkg/models"
 	"github.com/Hymiside/auth-microservice/pkg/service"
-	"io/ioutil"
 	"net/http"
 )
 
 func signUp(w http.ResponseWriter, r *http.Request) {
-	u := &models.User{}
+	var u models.User
 
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&u); err != nil {
 		ResponseError(w, "Invalid request 1", 400)
-		return
-	}
-	err = json.Unmarshal(body, u)
-	if err != nil {
-		ResponseError(w, err.Error(), 400)
 		return
 	}
 

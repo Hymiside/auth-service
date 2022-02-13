@@ -2,7 +2,6 @@ package database
 
 import (
 	"fmt"
-	"github.com/Hymiside/auth-microservice/pkg/models"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
@@ -29,7 +28,7 @@ func InitDatabase() error {
 	if err != nil {
 		return err
 	}
-	return nil
+	return err
 }
 
 // CloseDatabase фунция закрывает подключение к базе данных
@@ -38,10 +37,10 @@ func CloseDatabase() error {
 }
 
 // ToCreateUser Функция дабвляет нового пользователя в БД и возвращает ошибку
-func ToCreateUser(u *models.User) error {
+func ToCreateUser(u map[string]interface{}) error {
 	_, err := db.NamedExec(`INSERT INTO users (name, username, password_hash) VALUES (:name, :username, :password_hash)`, u)
 	if err != nil {
 		return err
 	}
-	return nil
+	return err
 }

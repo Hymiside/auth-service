@@ -19,17 +19,23 @@ func CheckPasswordHash(passwordHash, hash string) bool {
 }
 
 // CreateNewUser хэширует пароль, меняет его в структуре User и передает её в виде аргумента
-func CreateNewUser(u *models.User) (string, error) {
+func CreateNewUser(u models.User) (string, error) {
 	passwordHash, err := HashPassword(u.Password)
 	if err != nil {
 		return "Internal server error", err
 	}
-
 	u.Password = passwordHash
-	err = database.ToCreateUser(u)
+
+	user := map[string]interface{}{
+		"name":          u.Name,
+		"username":      u.Username,
+		"password_hash": u.Password,
+	}
+
+	err = database.ToCreateUser(user)
 	if err != nil {
 		return "Internal server error", err
 	}
 
-	return "User successfully sign up", nil
+	return "User successfully sign up", err
 }
