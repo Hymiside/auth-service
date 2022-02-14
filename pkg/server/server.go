@@ -1,26 +1,33 @@
 package server
 
 import (
+	"context"
 	"fmt"
 	"github.com/go-chi/chi/v5"
-	"log"
 	"net/http"
 )
 
-const (
-	host = "localhost"
-	port = "5000"
-)
+type ConfigServer struct {
+	Host string
+	Port string
+}
 
 type Server struct {
 	httpServer *http.Server
 }
 
-func (s *Server) RunServer(handler *chi.Mux) error {
+// RunServer запускает HTTP сервер
+func (s *Server) RunServer(handler *chi.Mux, c ConfigServer) error {
+
 	s.httpServer = &http.Server{
-		Addr:    fmt.Sprintf("%s:%s", host, port),
+		Addr:    fmt.Sprintf("%s:%s", c.Host, c.Port),
 		Handler: handler,
 	}
-	log.Println("The auth microservice is running on http://localhost:5000/")
 	return s.httpServer.ListenAndServe()
+}
+
+// ShutdownServer выключает HTTP сервер
+func (s *Server) ShutdownServer(ctx context.Context) error {
+	err := s.httpServer.Shutdown(ctx)
+	return err
 }

@@ -5,10 +5,10 @@ import (
 	"net/http"
 )
 
-func ResponseStatusOk(w http.ResponseWriter, message string) {
-	// Функуия записывает ответ с статус кодом 200 в JSON и возвращает его
+// ResponseStatusOk функция возращает ответ со статус кодом 200
+func ResponseStatusOk(w http.ResponseWriter, field, message string) {
 	res := make(map[string]string)
-	res["message"] = message
+	res[field] = message
 	resJSON, _ := json.Marshal(res)
 
 	w.Header().Set("Content-Type", "application/json")
@@ -16,8 +16,8 @@ func ResponseStatusOk(w http.ResponseWriter, message string) {
 	_, _ = w.Write(resJSON)
 }
 
+// ResponseError функция возвращает ответ со статус кодом 4хх или 5хх
 func ResponseError(w http.ResponseWriter, message string, code int) {
-	// Функуия записывает ответ с статус кодом 4xx или 5хх в JSON и возвращает его
 	res := make(map[string]string)
 	res["message"] = message
 	resJSON, _ := json.Marshal(res)

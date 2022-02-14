@@ -1,41 +1,77 @@
 package service
 
 import (
+	"errors"
 	"github.com/Hymiside/auth-microservice/pkg/database"
 	"github.com/Hymiside/auth-microservice/pkg/models"
+	"github.com/dgrijalva/jwt-go"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
+	"time"
 )
 
-// HashPassword функция хэширует пароль, а затем возвращает пароль и ошибку
-func HashPassword(password string) (string, error) {
+var (
+	signingKey       = []byte("qrkjk#4#%35FSFJlja#4353KSFjH")
+	id, passwordHash string
+)
+
+// hashPassword функция хэширует пароль, а затем возвращает пароль и ошибку
+func hashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	return string(bytes), err
 }
 
-// CheckPasswordHash функция хэширует пароль и возравщает хэш пароля из БД, а затем возвращает булевое значение
-func CheckPasswordHash(passwordHash, hash string) bool {
+// checkPasswordHash функция хэширует пароль и сравнивает хэш пароля из БД, а затем возвращает булевое значение
+func checkPasswordHash(passwordHash, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(passwordHash))
 	return err == nil
 }
 
 // CreateNewUser хэширует пароль, меняет его в структуре User и передает её в виде аргумента
 func CreateNewUser(u models.User) (string, error) {
-	passwordHash, err := HashPassword(u.Password)
+	var err error
+
+	u.Password, err = hashPassword(u.Password)
 	if err != nil {
-		return "Internal server error", err
+		return err.Error(), err
 	}
-	u.Password = passwordHash
+	u.UUID = uuid.New().String()[:8]
 
-	user := map[string]interface{}{
-		"name":          u.Name,
-		"username":      u.Username,
-		"password_hash": u.Password,
-	}
-
-	err = database.ToCreateUser(user)
+	err = database.ToCreateUser(u)
 	if err != nil {
-		return "Internal server error", err
+		return err.Error(), err
 	}
 
-	return "User successfully sign up", err
+	return u.UUID, err
+}
+
+// CheckUser функция проверяет выполняет проверку для входа пользователя
+func CheckUser(u models.SighInUser) (string, error) {
+	row, err := database.GetUser(u)
+	if err != nil {
+		return err.Error(), err
+	}
+
+	for row.Next() {
+		err = row.Scan(&id, &passwordHash)
+		if err != nil {
+			return err.Error(), err
+		}
+	}
+
+	userAuth := checkPasswordHash(u.Password, passwordHash)
+	if !userAuth {
+		return err.Error(), errors.New("пользователь ввел неверный пароль или логин")
+	}
+
+	claims := models.TokenClaims{
+		UserId: id,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(12 * time.Hour).Unix(),
+			IssuedAt:  time.Now().Unix(),
+		},
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	return token.SignedString(signingKey)
 }
