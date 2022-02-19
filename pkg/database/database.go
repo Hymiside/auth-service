@@ -50,6 +50,6 @@ func ToCreateUser(u models.User) error {
 
 // GetUser функция возвращает uuid и password пользователя
 func GetUser(u models.SighInUser) (*sqlx.Rows, error) {
-	id, err := db.Queryx(`SELECT uuid, password_hash FROM users WHERE username=$1`, u.Username)
+	id, err := db.Queryx(`SELECT uuid, password_hash, username FROM users WHERE username=$1`, u.Username)
 	return id, err
 }

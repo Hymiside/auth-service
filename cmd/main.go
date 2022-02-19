@@ -26,10 +26,10 @@ func main() {
 
 	go func() {
 		if err = srv.RunServer(handlers.InitHandler(), cfgSrv); err != nil {
-			log.Fatalf("Микросервис упал: %s", err.Error())
+			log.Fatalf("Микросервис выключен: %s", err.Error())
 		}
 	}()
-	log.Println("Микросервис аутентификации запущен http://localhost:5000/ .")
+	log.Println("Микросервис аутентификации запущен http://localhost:5000/")
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
@@ -46,5 +46,4 @@ func main() {
 	if err = database.CloseDatabase(); err != nil {
 		log.Fatalf("Ошибка закрытия подключения к базе данных: %s", err.Error())
 	}
-	log.Println("Микросервис успешно остановлен.")
 }

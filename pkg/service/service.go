@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	signingKey       = []byte("qrkjk#4#%35FSFJlja#4353KSFjH")
-	id, passwordHash string
+	signingKey                 = []byte("qrkjk#4#%35FSFJlja#4353KSFjH")
+	id, passwordHash, username string
 )
 
 // hashPassword функция хэширует пароль, а затем возвращает пароль и ошибку
@@ -53,15 +53,16 @@ func CheckUser(u models.SighInUser) (string, error) {
 	}
 
 	for row.Next() {
-		err = row.Scan(&id, &passwordHash)
+		err = row.Scan(&id, &passwordHash, &username)
 		if err != nil {
 			return err.Error(), err
 		}
 	}
 
 	userAuth := checkPasswordHash(u.Password, passwordHash)
-	if !userAuth {
-		return err.Error(), errors.New("пользователь ввел неверный пароль или логин")
+	if !userAuth || u.Username != username {
+		err = errors.New("пользователь ввел неверный пароль или логин")
+		return err.Error(), err
 	}
 
 	claims := models.TokenClaims{
