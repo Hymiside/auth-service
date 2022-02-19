@@ -25,7 +25,7 @@ func NewService(r repository.Repository) *Service {
 }
 
 // CreateNewUser хэширует пароль, меняет его в структуре User и передает её в виде аргумента
-func CreateNewUser(u models.User) (string, error) {
+func (s *Service) CreateNewUser(u models.User) (string, error) {
 	var err error
 
 	u.Password, err = hashPassword(u.Password)
