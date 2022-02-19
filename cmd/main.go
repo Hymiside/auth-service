@@ -2,34 +2,38 @@ package main
 
 import (
 	"context"
-	"github.com/Hymiside/auth-microservice/pkg/config"
-	"github.com/Hymiside/auth-microservice/pkg/database"
-	"github.com/Hymiside/auth-microservice/pkg/handler"
-	"github.com/Hymiside/auth-microservice/pkg/server"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/Hymiside/auth-microservice/pkg/service"
+
+	"github.com/Hymiside/auth-microservice/pkg/config"
+	"github.com/Hymiside/auth-microservice/pkg/handler"
+	"github.com/Hymiside/auth-microservice/pkg/repository"
+	"github.com/Hymiside/auth-microservice/pkg/server"
 )
 
 func main() {
 	cfgSrv, cfgDb := config.InitConfig()
 
-	srv := new(server.Server)
-	handlers := new(handler.Handler)
+	srv := &server.Server{}
+	h := &handler.Handler{}
 
-	err := database.InitDatabase(cfgDb)
+	repo, err := repository.NewRepository(cfgDb)
 	if err != nil {
-		log.Fatalf("Ошибка инициализации подключенния к базе данных: %s", err.Error())
+		log.Fatalf(err.Error())
 	}
+	services := service.NewService(*repo)
 
 	go func() {
-		if err = srv.RunServer(handlers.InitHandler(), cfgSrv); err != nil {
-			log.Fatalf("Микросервис выключен: %s", err.Error())
+		if err = srv.RunServer(h.InitHandler(*services), cfgSrv); err != nil {
+			log.Fatalf(err.Error())
 		}
 	}()
-	log.Println("Микросервис аутентификации запущен http://localhost:5000/")
+	log.Println("authentication microservice launched on http://localhost:5000/")
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
@@ -41,9 +45,9 @@ func main() {
 	}()
 
 	if err = srv.ShutdownServer(ctx); err != nil {
-		log.Fatalf("Ошибка при остановки микросервиса: %s", err.Error())
+		log.Fatalf(err.Error())
 	}
-	if err = database.CloseDatabase(); err != nil {
-		log.Fatalf("Ошибка закрытия подключения к базе данных: %s", err.Error())
+	if err = repo.Close(); err != nil {
+		log.Fatalf(err.Error())
 	}
 }

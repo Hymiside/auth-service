@@ -1,13 +1,14 @@
 package config
 
 import (
-	"github.com/Hymiside/auth-microservice/pkg/database"
+	"os"
+
+	"github.com/Hymiside/auth-microservice/pkg/repository"
 	"github.com/Hymiside/auth-microservice/pkg/server"
 	"github.com/joho/godotenv"
-	"os"
 )
 
-func InitConfig() (server.ConfigServer, database.ConfigDatabase) {
+func InitConfig() (server.ConfigServer, repository.ConfigDatabase) {
 	_ = godotenv.Load()
 
 	host, _ := os.LookupEnv("SERVICE_HOST")
@@ -19,7 +20,7 @@ func InitConfig() (server.ConfigServer, database.ConfigDatabase) {
 	passwordDb, _ := os.LookupEnv("DB_PASSWORD")
 	nameDb, _ := os.LookupEnv("DB_NAME")
 
-	configDb := database.ConfigDatabase{
+	configDb := repository.ConfigDatabase{
 		Host:     hostDb,
 		Port:     portDb,
 		User:     userDb,

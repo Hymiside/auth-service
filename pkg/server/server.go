@@ -3,8 +3,9 @@ package server
 import (
 	"context"
 	"fmt"
-	"github.com/go-chi/chi/v5"
 	"net/http"
+
+	"github.com/go-chi/chi/v5"
 )
 
 type ConfigServer struct {
@@ -29,5 +30,8 @@ func (s *Server) RunServer(handler *chi.Mux, c ConfigServer) error {
 // ShutdownServer выключает HTTP сервер
 func (s *Server) ShutdownServer(ctx context.Context) error {
 	err := s.httpServer.Shutdown(ctx)
-	return err
+	if err != nil {
+		return fmt.Errorf("microservice error stop: %w", err)
+	}
+	return nil
 }
